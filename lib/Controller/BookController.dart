@@ -67,17 +67,14 @@ class BookController extends GetxController {
       }
       allBooks.assignAll(bookData);
     } catch (e) {
-      print("Error fetching all books: $e");
       errorMessage("Failed to fetch books");
       // Implement retry logic here if needed
     }
   }
 
   void searchBooks(String query) {
-    print("Query received: $query");
 
     if (query.isEmpty) {
-      print("Query is empty, resetting bookData to allBooks.");
       bookData.assignAll(allBooks);
     } else {
       var searchedBooks = allBooks
@@ -86,7 +83,6 @@ class BookController extends GetxController {
               false)
           .toList();
 
-      print("Filtered books count: ${searchedBooks.length}");
 
       bookData.assignAll(searchedBooks);
     }
@@ -97,20 +93,17 @@ class BookController extends GetxController {
     final XFile? image =
         await imagePicker.pickImage(source: ImageSource.gallery);
     if (image != null) {
-      print(image.path);
       uploadImageToFirebase(File(image.path));
     }
     isImageUploading.value = false;
   }
 
   void uploadImageToFirebase(File image) async {
-    var uuid = Uuid();
+    var uuid = const Uuid();
     var filename = uuid.v1();
     var storageRef = storage.ref().child("Images/$filename");
-    var response = await storageRef.putFile(image);
     String downloadURL = await storageRef.getDownloadURL();
     imageUrl.value = downloadURL;
-    print("Download URL: $downloadURL");
     isImageUploading.value = false;
   }
 
@@ -162,19 +155,15 @@ class BookController extends GetxController {
       if (file.existsSync()) {
         Uint8List fileBytes = await file.readAsBytes();
         String fileName = result.files.first.name;
-        print("File Bytes: $fileBytes");
 
         final response =
             await storage.ref().child("Pdf/$fileName").putData(fileBytes);
 
         final downloadURL = await response.ref.getDownloadURL();
         pdfUrl.value = downloadURL;
-        print(downloadURL);
       } else {
-        print("File does not exist");
       }
     } else {
-      print("No file selected");
     }
     isPdfUploading.value = false;
   }
